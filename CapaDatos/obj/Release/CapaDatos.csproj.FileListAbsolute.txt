@@ -1,0 +1,9 @@
+C:\Users\bryan\source\repos\HobbyTracker\CapaDatos\bin\Release\CapaDatos.dll
+C:\Users\bryan\source\repos\HobbyTracker\CapaDatos\bin\Release\CapaDatos.pdb
+C:\Users\bryan\source\repos\HobbyTracker\CapaDatos\bin\Release\CapaEntidades.dll
+C:\Users\bryan\source\repos\HobbyTracker\CapaDatos\bin\Release\CapaEntidades.pdb
+C:\Users\bryan\source\repos\HobbyTracker\CapaDatos\obj\Release\CapaDatos.csproj.AssemblyReference.cache
+C:\Users\bryan\source\repos\HobbyTracker\CapaDatos\obj\Release\CapaDatos.csproj.CoreCompileInputs.cache
+C:\Users\bryan\source\repos\HobbyTracker\CapaDatos\obj\Release\CapaDatos.csproj.CopyComplete
+C:\Users\bryan\source\repos\HobbyTracker\CapaDatos\obj\Release\CapaDatos.dll
+C:\Users\bryan\source\repos\HobbyTracker\CapaDatos\obj\Release\CapaDatos.pdb

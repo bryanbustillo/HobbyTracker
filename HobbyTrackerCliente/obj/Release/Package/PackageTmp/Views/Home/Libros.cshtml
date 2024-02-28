@@ -1,0 +1,297 @@
+﻿
+@{
+    ViewBag.Title = "Libros";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mt-4 mb-4" style="color: #012970;"><i class="fa-solid fa-book"></i> Libros</h2>
+
+<div class="card">
+    <div class="card-header"><i class="fa-solid fa-list-ul"></i> Lista de libros</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn" style="background-image: linear-gradient(135deg, rgb(0, 105, 255) 0%, rgb(0, 66, 227) 100%); color: white;" onclick="abrirModal(null)">Agregar libro</button>
+            </div>
+        </div>
+
+        <hr />
+
+        <table id="tbLibros" class="display cell-border" style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Autor</th>
+                    <th>Editorial</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL -->
+<!-- Modal agregar libro -->
+<div class="modal fade" id="mdLibro" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-image: linear-gradient(135deg, rgb(40, 187, 255) 0%, rgb(0, 105, 255) 100%); color: white;">
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fa-solid fa-book"></i> Libro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2" style="font-weight: 600;">
+                    @{
+                        var userData = User.Identity.Name.Split('|');
+                        var userEmail = userData[0];
+                        var userNombre = userData[1];
+                        var userApellido = userData[2];
+                        var userIDCliente = userData[3];
+                    }
+
+                    <input type="hidden" id="txtIDLibro" value="0">
+                    <input type="hidden" id="txtIDCliente" value="@userIDCliente">
+
+                    <div class="col-sm-6">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" autocomplete="off" id="txtNombre">
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Autor</label>
+                        <input type="text" class="form-control" autocomplete="off" id="txtAutor">
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Editorial</label>
+                        <input type="email" class="form-control" autocomplete="off" id="txtEditorial">
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" id="slLeido">
+                            <option value="1">Leído</option>
+                            <option value="0">Sin leer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Mensaje de error -->
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div class="alert alert-danger" role="alert" id="mensajeError">
+                            A simple danger alert—check it out!
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" style="background-image: linear-gradient(135deg, rgb(0, 105, 255) 0%, rgb(0, 66, 227) 100%); color: white;" onclick="guardarDatos()">Guardar</button>
+                <button type="button" class="btn" style="background-color: #a8e3ff; color: black;" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var tableData;
+        var filaSeleccionada;
+
+        //********************************************* Listar libros *********************************************
+        tableData = $("#tbLibros").DataTable({
+            responsive: true,
+            ordering: false,
+            "ajax": {
+                url: '@Url.Action("listarLibros", "Home")',
+                type: "GET",
+                dataType: "json",
+                data: function (d) {
+                    // Obtener el valor del input hidden
+                    var userIDCliente = $("#txtIDCliente").val();
+                    // Agregar el parámetro IDCliente a los datos enviados al controlador
+                    d.IDCliente = userIDCliente;
+                }
+            },
+
+            "columns": [
+                { "data": "nombre" },
+                { "data": "autor" },
+                { "data": "editorial" },
+                {
+                    "data": "leido", "render": function (data)
+                    {
+                        if (data)
+                        {
+                            return '<span class="badge rounded-pill bg-success">Leído</span>';
+                        }
+                        else
+                        {
+                            return '<span class="badge rounded-pill bg-secondary">Sin leer</span>';
+                        }
+                    }
+                },
+                //columna de botones para editar y eliminar
+                {
+                    "defaultContent": '<button type="button" class="btn btn-sm btn-editar" style="color: rgb(0, 79, 255); border-color: rgb(0, 79, 255); background-color: rgb(206, 238, 255);" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                                      '<button type="button" class="btn btn-sm ms-2 btn-eliminar" style="background-color: rgb(0, 79, 255); color: white;" title="Eliminar"><i class="fa-solid fa-trash"></i></i></button>',
+                    "orderable": false, //para que no ordene esa columna
+                    "searchable": false, //para que no busque por esa columna
+                    "width": "90px"
+                }
+            ],
+            //para cambiar el lenguaje de la tabla a español
+            "language": {
+                url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+            }
+        });
+
+        //********************************************** Abrir modal **********************************************
+        function abrirModal(json) {
+            $("#txtIDLibro").val(0);
+            $("#txtNombre").val("");
+            $("#txtAutor").val("");
+            $("#txtEditorial").val("");
+            $("#slLeido").val(1);
+
+            $("#mensajeError").hide();
+
+
+            if (json != null) //aquí es donde se llenan los campos en caso de que el json sea vacío, los datos que viene de la BD
+            {
+                $("#txtIDLibro").val(json.IDLibro);
+                $("#txtNombre").val(json.nombre);
+                $("#txtAutor").val(json.autor);
+                $("#txtEditorial").val(json.editorial);
+                $("#slLeido").val(json.leido == true ? 1 : 0);
+            }
+
+            $("#mdLibro").modal("show");
+        }
+
+        //**************************************** Llenar campos al editar ****************************************
+        $("#tbLibros tbody").on("click", '.btn-editar', function () {
+            filaSeleccionada = $(this).closest("tr");
+
+            var data = tableData.row(filaSeleccionada).data();
+
+            abrirModal(data);
+        })
+
+        //**************************************** Agregar y editar libros ****************************************
+        function guardarDatos() {
+            var libro = {
+                IDLibro: $("#txtIDLibro").val(),
+                nombre: $("#txtNombre").val(),
+                autor: $("#txtAutor").val(),
+                editorial: $("#txtEditorial").val(),
+                leido: $("#slLeido").val() == 1 ? true : false,
+                cliente: $("#txtIDCliente").val(),
+            }
+
+            jQuery.ajax({
+                url: '@Url.Action("insertarEditarLibro", "Home")',
+                type: "POST",
+                data: JSON.stringify({ obj: libro }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(".modal-body").LoadingOverlay("hide");
+
+                    //libro nuevo
+                    if (libro.IDLibro == 0) {
+                        if (data.resultado != 0) {
+                            libro.IDLibro = data.resultado;
+                            tableData.row.add(libro).draw(false);
+                            $("#mdLibro").modal("hide");
+                        }
+                        else {
+                            $("#mensajeError").text(data.mensaje);
+                            $("#mensajeError").show();
+                        }
+                    }
+                    //editar libro
+                    else {
+                        if (data.resultado) {
+                            tableData.row(filaSeleccionada).data(libro).draw(false);
+                            filaSeleccionada = null
+                            $("#mdLibro").modal("hide");
+                        }
+                        else {
+                            $("#mensajeError").text(data.mensaje);
+                            $("#mensajeError").show();
+                        }
+                    }
+
+                },
+                error: function (error) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    $("#mensajeError").text("Error AJAX");
+                    $("#mensajeError").show();
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando...",
+                        size: 14
+                    })
+                },
+            });
+        }
+
+        //********************************************* Eliminar libros *********************************************
+        $("#tbLibros tbody").on("click", '.btn-eliminar', function () {
+            var libroSeleccionado = $(this).closest("tr");
+            var data = tableData.row(libroSeleccionado).data();
+
+            //sweetalert2
+            Swal.fire({
+                title: "¿Desea eliminar este libro?",
+                text: "",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#004fff",
+                cancelButtonColor: "#6dd6ff",
+                confirmButtonText: "Sí",
+                cancelButtonText: "No"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    jQuery.ajax({
+                        url: '@Url.Action("eliminarLibro", "Home")',
+                        type: "POST",
+                        data: JSON.stringify({ id: data.IDLibro }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            if (data.resultado) {
+                                tableData.row(libroSeleccionado).remove().draw();
+                                /*Swal.fire("¡Eliminado!", "El usuario ha sido eliminado.", "success");*/
+                                Swal.fire({
+                                    title: "Eliminado",
+                                    text: "El libro ha sido eliminado",
+                                    icon: "success",
+                                    confirmButtonColor: "#004fff", // Cambia el color del botón de confirmación
+                                    confirmButtonTextColor: "#fff"
+                                });
+                            } else {
+                                Swal.fire("No se pudo eliminar el libro", data.mensaje, "error");
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        },
+                    });
+                }
+            });
+
+            console.log(data);
+        });
+    </script>
+
+    <!-- referencia al sweetalert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+}
+

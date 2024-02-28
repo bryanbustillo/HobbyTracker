@@ -1,0 +1,379 @@
+﻿
+@{
+    ViewBag.Title = "JuegoSwitch";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mt-4 mb-4" style="color: #012970;"><i class="fa-solid fa-gamepad"></i> Juegos Switch</h2>
+
+<div class="card">
+    <div class="card-header"><i class="fa-solid fa-list-ul"></i> Lista de juegos</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn" style="background-image: linear-gradient(135deg, rgb(0, 105, 255) 0%, rgb(0, 66, 227) 100%); color: white;" onclick="abrirModal(null)">Agregar juego</button>
+            </div>
+        </div>
+
+        <hr />
+
+        <table id="tbJuegosSwitch" class="display cell-border" style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Juego</th>
+                    <th>Formato</th>
+                    <th>Progreso</th>
+                    <th>Estado</th>
+                    <th>Observaciones</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL -->
+<!-- Modal agregar libro -->
+<div class="modal fade" id="mdJuegosSwitch" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-image: linear-gradient(135deg, rgb(40, 187, 255) 0%, rgb(0, 105, 255) 100%); color: white;">
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fa-solid fa-gamepad"></i> Juego</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2" style="font-weight: 600;">
+                    @{
+                        var userData = User.Identity.Name.Split('|');
+                        var userEmail = userData[0];
+                        var userNombre = userData[1];
+                        var userApellido = userData[2];
+                        var userIDCliente = userData[3];
+                    }
+
+                    <input type="hidden" id="txtIDJuegoSwitch" value="0">
+                    <input type="hidden" id="txtIDCliente" value="@userIDCliente">
+
+                    <div class="col-sm-6">
+                        <label class="form-label">Juego</label>
+                        <input type="text" class="form-control" autocomplete="off" id="txtJuego">
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" id="slEstado" onclick="desactivarCamposSiPorComprar()">
+                            <option value="2" disabled>Seleccionar estado</option>
+                            <option value="1">Adquirido</option>
+                            <option value="0">Por comprar</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Formato</label>
+                        <select class="form-select" id="slFormato">
+                            @*<option value="0" disabled>Seleccionar formato</option>*@
+                            <option value="0">Pendiente</option>
+                            <option value="1">Físico</option>
+                            <option value="2">Digital</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Progreso</label>
+                        <select class="form-select" id="slProgreso">
+                            @*<option value="0" disabled>Seleccionar progreso</option>*@
+                            <option value="0">Pendiente</option>
+                            <option value="1">Terminado</option>
+                            <option value="2">Sin terminar</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Observaciones</label>
+                        <input type="email" class="form-control" autocomplete="off" id="txtObservaciones">
+                    </div>
+                </div>
+
+                <!-- Mensaje de error -->
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div class="alert alert-danger" role="alert" id="mensajeError">
+                            A simple danger alert—check it out!
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" style="background-image: linear-gradient(135deg, rgb(0, 105, 255) 0%, rgb(0, 66, 227) 100%); color: white;" onclick="guardarDatos()">Guardar</button>
+                <button type="button" class="btn" style="background-color: #a8e3ff; color: black;" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var tableData;
+        var filaSeleccionada;
+
+        //********************************************* Listar libros *********************************************
+        $(document).ready(function () {
+            tableData = $("#tbJuegosSwitch").DataTable({
+                responsive: true,
+                ordering: false,
+                "ajax": {
+                    url: '@Url.Action("listarJuegosSwitch", "Home")',
+                    type: "GET",
+                    dataType: "json",
+                    data: function (d) {
+                        // Obtener el valor del input hidden
+                        var userIDCliente = $("#txtIDCliente").val();
+                        // Agregar el parámetro IDCliente a los datos enviados al controlador
+                        d.IDCliente = userIDCliente;
+                    }
+                },
+                "columns": [
+                    { "data": "juego" },
+                    {
+                        "data": "formato", "render": function (data) {
+                            if (data == 0) {
+                                return 'Pendiente';
+                            }
+                            if (data == 1) {
+                                return 'Físico';
+                            }
+                            if (data == 2) {
+                                return 'Digital';
+                            }
+                        }
+                    },
+                    {
+                        "data": "progreso", "render": function (data) {
+                            if (data == 0) {
+                                return 'Pendiente';
+                            }
+                            if (data == 1) {
+                                return 'Terminado';
+                            }
+                            if (data == 2) {
+                                return 'Sin terminar';
+                            }
+                        }
+                    },
+                    {
+                        "data": "estado", "render": function (data) {
+                            if (data) {
+                                return '<span class="badge rounded-pill bg-success">Adquirido</span>';
+                            } else {
+                                return '<span class="badge rounded-pill bg-secondary">Por comprar</span>';
+                            }
+                        }
+                    },
+                    { "data": "observaciones" },
+                    {
+                        "defaultContent": '<button type="button" class="btn btn-sm btn-editar" style="color: rgb(0, 79, 255); border-color: rgb(0, 79, 255); background-color: rgb(206, 238, 255);" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                            '<button type="button" class="btn btn-sm ms-2 btn-eliminar" style="background-color: rgb(0, 79, 255); color: white;" title="Eliminar"><i class="fa-solid fa-trash"></i></i></button>',
+                        "orderable": false,
+                        "searchable": false,
+                        "width": "90px"
+                    }
+                ],
+                "language": {
+                    url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+                }
+            });
+        });
+
+        function desactivarCamposSiPorComprar() {
+            var estadoSeleccionado = $("#slEstado").val();
+
+            if (estadoSeleccionado == 1) {
+                $("#slFormato").prop("disabled", false);
+                $("#slProgreso").prop("disabled", false);
+                $("#slFormato").val(1);
+                $("#slProgreso").val(1);
+            }
+            else {
+                $("#slFormato").prop("disabled", true);
+                $("#slFormato").val(0);
+                $("#slProgreso").prop("disabled", true);
+                $("#slProgreso").val(0);
+            }
+        }
+
+        //********************************************** Abrir modal **********************************************
+        function abrirModal(json) {
+            $("#slFormato").prop("disabled", true);
+            $("#slProgreso").prop("disabled", true);
+
+            $("#txtIDJuegoSwitch").val(0);
+            $("#txtJuego").val("");
+            //$("#slFormato").val(0);
+            //$("#slProgreso").val(0);
+            //$("#slEstado").val(2);
+            $("#slFormato").val(1);
+            $("#slProgreso").val(1);
+            $("#slEstado").val(2);
+            $("#txtObservaciones").val("");
+
+            $("#mensajeError").hide();
+
+
+            if (json != null) //aquí es donde se llenan los campos en caso de que el json sea vacío, los datos que viene de la BD
+            {
+                $("#txtIDJuegoSwitch").val(json.IDJuegoSwitch);
+                $("#txtJuego").val(json.juego);
+                $("#slFormato").val(json.formato == true ? 1 : 0);
+                $("#slProgreso").val(json.progreso == true ? 1 : 0);
+                $("#slEstado").val(json.estado == true ? 1 : 0);
+                if (json.estado == 1) {
+                    $("#slFormato").prop("disabled", false);
+                    $("#slProgreso").prop("disabled", false);
+                }
+                else {
+                    $("#slFormato").prop("disabled", true);
+                    $("#slFormato").val(0);
+                    $("#slProgreso").prop("disabled", true);
+                    $("#slProgreso").val(0);
+                }
+                $("#txtObservaciones").val(json.observaciones);
+            }
+
+            $("#mdJuegosSwitch").modal("show");
+        }
+
+        //**************************************** Llenar campos al editar ****************************************
+        $("#tbJuegosSwitch tbody").on("click", '.btn-editar', function () {
+            filaSeleccionada = $(this).closest("tr");
+
+            var data = tableData.row(filaSeleccionada).data();
+
+            abrirModal(data);
+        })
+
+        //**************************************** Agregar y editar juegos ****************************************
+        function guardarDatos() {
+            var juegoSwitch = {
+                IDJuegoSwitch: $("#txtIDJuegoSwitch").val(),
+                juego: $("#txtJuego").val(),
+                formato: $("#slFormato").val(),
+                progreso: $("#slProgreso").val(),
+                estado: $("#slEstado").val() == 1 ? true : false,                
+                observaciones: $("#txtObservaciones").val(),
+                cliente: $("#txtIDCliente").val(),
+            }
+
+            var estadoSeleccionado = $("#slEstado").val();
+            if (estadoSeleccionado == null) {
+                Swal.fire({
+                    icon: "warning",
+                    text: "Verificar que haya seleccionado un estado",
+                    confirmButtonColor: "#004fff", 
+                });
+            }
+            else
+            {
+                jQuery.ajax({
+                    url: '@Url.Action("insertarJuegoSwitch", "Home")',
+                    type: "POST",
+                    data: JSON.stringify({ obj: juegoSwitch }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $(".modal-body").LoadingOverlay("hide");
+
+                        //juego nuevo
+                        if (juegoSwitch.IDJuegoSwitch == 0) {
+                            if (data.resultado != 0) {
+                                juegoSwitch.IDJuegoSwitch = data.resultado;
+                                tableData.row.add(juegoSwitch).draw(false);
+                                $("#mdJuegosSwitch").modal("hide");
+                            }
+                            else {
+                                $("#mensajeError").text(data.mensaje);
+                                $("#mensajeError").show();
+                            }
+                        }
+                        //editar juego
+                        else {
+                            if (data.resultado) {
+                                tableData.row(filaSeleccionada).data(juegoSwitch).draw(false);
+                                filaSeleccionada = null
+                                $("#mdJuegosSwitch").modal("hide");
+                            }
+                            else {
+                                $("#mensajeError").text(data.mensaje);
+                                $("#mensajeError").show();
+                            }
+                        }
+
+                    },
+                    error: function (error) {
+                        $(".modal-body").LoadingOverlay("hide");
+                        $("#mensajeError").text("Error AJAX");
+                        $("#mensajeError").show();
+                    },
+                    beforeSend: function () {
+                        $(".modal-body").LoadingOverlay("show", {
+                            imageResizeFactor: 2,
+                            text: "Cargando...",
+                            size: 14
+                        })
+                    },
+                });
+            }
+        }
+
+        //********************************************* Eliminar juegos *********************************************
+        $("#tbJuegosSwitch tbody").on("click", '.btn-eliminar', function () {
+            var juegoSeleccionado = $(this).closest("tr");
+            var data = tableData.row(juegoSeleccionado).data();
+
+            //sweetalert2
+            Swal.fire({
+                title: "¿Desea eliminar este juego?",
+                text: "",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#004fff",
+                cancelButtonColor: "#6dd6ff",
+                confirmButtonText: "Sí",
+                cancelButtonText: "No"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    jQuery.ajax({
+                        url: '@Url.Action("eliminarJuegoSwitch", "Home")',
+                        type: "POST",
+                        data: JSON.stringify({ id: data.IDJuegoSwitch }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            if (data.resultado) {
+                                tableData.row(juegoSeleccionado).remove().draw();
+                                /*Swal.fire("¡Eliminado!", "El usuario ha sido eliminado.", "success");*/
+                                Swal.fire({
+                                    title: "Eliminada",
+                                    text: "El juego ha sido eliminado",
+                                    icon: "success",
+                                    confirmButtonColor: "#004fff", // Cambia el color del botón de confirmación
+                                    confirmButtonTextColor: "#fff"
+                                });
+                            } else {
+                                Swal.fire("No se pudo eliminar el juego", data.mensaje, "error");
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        },
+                    });
+                }
+            });
+
+            console.log(data);
+        });
+    </script>
+
+    <!-- referencia al sweetalert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+}
+

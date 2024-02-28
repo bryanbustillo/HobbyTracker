@@ -1,0 +1,6 @@
+C:\Users\bryan\source\repos\HobbyTracker\CapaEntidades\bin\Debug\CapaEntidades.dll
+C:\Users\bryan\source\repos\HobbyTracker\CapaEntidades\bin\Debug\CapaEntidades.pdb
+C:\Users\bryan\source\repos\HobbyTracker\CapaEntidades\obj\Debug\CapaEntidades.csproj.AssemblyReference.cache
+C:\Users\bryan\source\repos\HobbyTracker\CapaEntidades\obj\Debug\CapaEntidades.csproj.CoreCompileInputs.cache
+C:\Users\bryan\source\repos\HobbyTracker\CapaEntidades\obj\Debug\CapaEntidades.dll
+C:\Users\bryan\source\repos\HobbyTracker\CapaEntidades\obj\Debug\CapaEntidades.pdb

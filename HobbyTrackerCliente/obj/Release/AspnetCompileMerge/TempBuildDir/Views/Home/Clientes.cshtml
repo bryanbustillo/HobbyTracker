@@ -1,0 +1,299 @@
+﻿
+@{
+    ViewBag.Title = "Clientes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mt-4 mb-4" style="color: #012970;"><i class="fa-solid fa-user"></i> Cliente</h2>
+
+<section class="section profile">
+    <div class="row">
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+                    @*<img src="~/Content/img/profile-img.jpg" alt="Profile" class="rounded-circle">*@
+                    <img src="~/Content/img/usuarioIcono.png" alt="Profile" class="rounded-circle">
+                    <h2 id="h2Nombre">Kevin Anderson</h2>                    
+                    @*<div class="social-links mt-2">
+                        <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+                    </div>*@
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-body pt-3">
+                    @{
+                        var userData = User.Identity.Name.Split('|');
+                        var userEmail = userData[0];
+                        var userNombre = userData[1];
+                        var userApellido = userData[2];
+                        var userIDCliente = userData[3];
+                    }                    
+                    <ul class="nav nav-tabs nav-tabs-bordered">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#perfilVista">Perfil</button>
+                        </li>
+
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#perfilEditar">Editar perfil</button>
+                        </li>
+
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#cambiarContrasenaPerfil">Cambiar contraseña</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content pt-2">
+                        <!-- DETALLES PERFIL -->
+                        <div class="tab-pane fade show active profile-overview" id="perfilVista">
+                            <h5 class="card-title">Detalles</h5>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label ">Nombre</div>
+                                <div class="col-lg-9 col-md-8"><span id="spnNombre"></span></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Apellido</div>
+                                <div class="col-lg-9 col-md-8"><span id="spnApellido"></span></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Email</div>
+                                <div class="col-lg-9 col-md-8"><span id="spnEmail"></span></div>
+                            </div>
+                        </div>
+
+                        <!-- EDITAR PERFIL -->
+                        <div class="tab-pane fade profile-edit pt-3" id="perfilEditar">
+                            <input type="hidden" id="txtIDCliente" value="0">
+
+                            @*<div class="row mb-3">
+                                <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <img src="~/Content/img/profile-img.jpg" alt="Profile">
+                                    <div class="pt-2">
+                                        <a href="#" class="btn btn-primary btn-sm" title="Upload new profile image"><i class="bi bi-upload"></i></a>
+                                        <a href="#" class="btn btn-danger btn-sm" title="Remove my profile image"><i class="bi bi-trash"></i></a>
+                                    </div>
+                                </div>
+                            </div>*@
+
+                            <div class="row mb-3">
+                                <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Nombre</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="fullName" type="text" class="form-control" id="txtNombre">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="company" class="col-md-4 col-lg-3 col-form-label">Apellido</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="company" type="text" class="form-control" id="txtApellido">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="Job" class="col-md-4 col-lg-3 col-form-label">Email</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="job" type="text" class="form-control" id="txtEmail">
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="button" class="btn btn-primary" style="background-image: linear-gradient(135deg, rgb(0, 105, 255) 0%, rgb(0, 66, 227) 100%); color: white;" onclick="guardarDatos()">Guardar cambios</button>
+                            </div>
+                        </div>
+
+                        <!-- CAMBIAR CONTRASEÑA -->
+                        <div class="tab-pane fade profile-edit pt-3" id="cambiarContrasenaPerfil">
+                            <div class="row mb-3">
+                                <label class="col-md-4 col-lg-3 col-form-label">Contraseña actual</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input type="password" class="form-control" id="txtContrasenaActual">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-md-4 col-lg-3 col-form-label">Contraseña nueva</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input type="password" class="form-control" id="txtContrasenaNueva">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-md-4 col-lg-3 col-form-label">Confirmar contraseña</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input type="password" class="form-control" id="txtConfirmarContrasena">
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="button" class="btn btn-primary" style="background-image: linear-gradient(135deg, rgb(0, 105, 255) 0%, rgb(0, 66, 227) 100%); color: white;" onclick="guardarContrasenaPerfil()">Cambiar contraseña</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts{
+    <script>
+        var tableData;
+        var filaSeleccionada;
+
+        //********************************************* Listar clientes *********************************************
+        // LLENA LOS CAMPOS DE LOS DETALLES Y DE EDITAR PERFIL
+        $.ajax({
+            url: '@Url.Action("ListarClientesPerfil", "Home")',
+            type: 'GET',
+            dataType: 'json',
+            data: { IDCliente: '@userIDCliente' }, // Pasar el IDCliente como parámetro en la petición
+            success: function (data) {
+                var clientes = data.data;
+                // Verificar si hay clientes
+                if (clientes.length > 0) {
+                    var primerCliente = clientes[0];
+                    // Mostrar los datos del primer cliente en los campos correspondientes
+                    $('#h2Nombre').text(primerCliente.nombre + ' ' + primerCliente.apellido);
+
+                    $('#spnNombre').text(primerCliente.nombre);
+                    $('#spnApellido').text(primerCliente.apellido);
+                    $('#spnEmail').text(primerCliente.email);
+
+                    $('#txtIDCliente').val(primerCliente.IDCliente);
+                    $('#txtNombre').val(primerCliente.nombre);
+                    $('#txtApellido').val(primerCliente.apellido);
+                    $('#txtEmail').val(primerCliente.email);
+                }
+            },
+            error: function (error) {
+                console.error('Error obteniendo los clientes:', error);
+            }
+        });
+
+        //**************************************** Editar clientes ****************************************
+        function guardarDatos() {
+            var cliente = {
+                IDCliente: $("#txtIDCliente").val(),
+                nombre: $("#txtNombre").val(),
+                apellido: $("#txtApellido").val(),
+                email: $("#txtEmail").val(),
+            }
+
+            jQuery.ajax({
+                url: '@Url.Action("editarUsuario", "Home")',
+                type: "POST",
+                data: JSON.stringify({ obj: cliente }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    //concierto nuevo
+                    if (data.resultado) {
+                        $("#txtNombre").val(cliente.nombre);
+                        $("#txtApellido").val(cliente.apellido);
+                        $("#txtEmail").val(cliente.email);
+                        // Recargar la página después de un breve retraso (por ejemplo, 1 segundo)
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000); // 1000 milisegundos = 1 segundo
+                    } else {
+                        $("#mensajeError").text(data.mensaje);
+                        $("#mensajeError").show();
+                    }
+
+                },
+                error: function (error) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    $("#mensajeError").text("Error AJAX");
+                    $("#mensajeError").show();
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando...",
+                        size: 14
+                    })
+                },
+            });
+        }
+
+        //********************************************* Cambiar contraseña perfil *********************************************
+        function guardarContrasenaPerfil() {
+            var IDCliente = $("#txtIDCliente").val();
+            var contrasenaActual = $("#txtContrasenaActual").val();
+            var nuevaContrasena = $("#txtContrasenaNueva").val();
+            var confirmarContrasena = $("#txtConfirmarContrasena").val();
+
+            jQuery.ajax({
+                url: '@Url.Action("cambiarContrasenaPerfil", "Home")',
+                type: "POST",
+                data: {
+                    IDCliente: IDCliente,
+                    contrasenaActual: contrasenaActual,
+                    nuevaContrasena: nuevaContrasena,
+                    confirmarContrasena: confirmarContrasena
+                },
+                dataType: "json",
+                success: function (data) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    if (data.resultado) {
+                        // Limpiar campos de contraseña
+                        $("#txtContrasenaActual").val("");
+                        $("#txtContrasenaNueva").val("");
+                        $("#txtConfirmarContrasena").val("");
+
+                        Swal.fire({
+                            title: "Actualizada",
+                            text: "La contraseña se actualizó correctamente",
+                            icon: "success",
+                            confirmButtonColor: "#004fff", // Cambia el color del botón de confirmación
+                            confirmButtonTextColor: "#fff"
+                        });
+
+                        // Recargar la página después de un breve retraso (por ejemplo, 1 segundo)
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000); // 1000 milisegundos = 1 segundo
+                    }
+                    else {
+                        $("#mensajeError").text(data.mensaje);
+                        $("#mensajeError").show();
+                    }
+                },
+                error: function (error) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    $("#mensajeError").text("Error AJAX");
+                    $("#mensajeError").show();
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando...",
+                        size: 14
+                    })
+                },
+            });
+        }
+    </script>
+
+    <!-- referencia al sweetalert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Archivos JS de pickadate -->
+    <script src="https://cdn.jsdelivr.net/npm/pickadate/lib/picker.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pickadate/lib/picker.date.js"></script>
+
+    <!-- Incluye Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- Incluye el complemento "datetime-moment" para DataTables -->
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/datetime-moment.js"></script>
+}
+

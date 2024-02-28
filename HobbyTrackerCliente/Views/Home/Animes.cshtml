@@ -1,0 +1,330 @@
+﻿
+@{
+    ViewBag.Title = "Animes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mt-4 mb-4" style="color: #012970;"><i class="fa-solid fa-display"></i> Series de Anime</h2>
+
+<div class="card">
+    <div class="card-header"><i class="fa-solid fa-display"></i> Lista de series de anime</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn" style="background-image: linear-gradient(135deg, rgb(0, 105, 255) 0%, rgb(0, 66, 227) 100%); color: white;" onclick="abrirModal(null)">Agregar serie</button>
+            </div>
+        </div>
+
+        <hr />
+
+        <table id="tbAnimes" class="display cell-border" style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Registro</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL -->
+<!-- Modal agregar -->
+<div class="modal fade" id="mdAnimes" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-image: linear-gradient(135deg, rgb(40, 187, 255) 0%, rgb(0, 105, 255) 100%); color: white;">
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fa-solid fa-display"></i> Anime</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2" style="font-weight: 600;">
+                    <!-- Esto viene del controlador Acceso en el mpetodo Login -->
+                    @{
+                        var userData = User.Identity.Name.Split('|');
+                        var userEmail = userData[0];
+                        var userNombre = userData[1];
+                        var userApellido = userData[2];
+                        var userIDCliente = userData[3];
+                    }
+
+                    <input type="hidden" id="txtIDAnime" value="0">
+                    <input type="hidden" id="txtIDCliente" value="@userIDCliente">
+
+                    <div class="col-sm-6">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" autocomplete="off" id="txtNombre">
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" id="slEstado" onclick="desactivarRegistroSiTerminada()">
+                            <option value="2" disabled>Seleccionar estado</option>
+                            <option value="1">Terminada</option>
+                            <option value="0">Pendiente</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Registro</label>
+                        <input type="text" class="form-control" autocomplete="off" id="txtRegistro">
+                    </div>
+                </div>
+
+                <!-- Mensaje de error -->
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div class="alert alert-danger" role="alert" id="mensajeError">
+                            A simple danger alert—check it out!
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" style="background-image: linear-gradient(135deg, rgb(0, 105, 255) 0%, rgb(0, 66, 227) 100%); color: white;" onclick="guardarDatos()">Guardar</button>
+                <button type="button" class="btn" style="background-color: #a8e3ff; color: black;" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var tableData;
+        var filaSeleccionada;
+
+        //********************************************* Listar series *********************************************
+        tableData = $("#tbAnimes").DataTable({
+            responsive: true,
+            ordering: false,
+            "ajax": {
+                url: '@Url.Action("listarAnimes", "Home")',
+                type: "GET",
+                dataType: "json",
+                data: function (d) {
+                    // Obtener el valor del input hidden
+                    var userIDCliente = $("#txtIDCliente").val();
+                    // Agregar el parámetro IDCliente a los datos enviados al controlador
+                    d.IDCliente = userIDCliente;
+                }
+            },
+
+            "columns": [
+                { "data": "nombre" },
+                {
+                    "data": "estado", "render": function (data)
+                    {
+                        if (data)
+                        {
+                            return '<span class="badge rounded-pill bg-success">Terminada</span>';
+                        }
+                        else
+                        {
+                            return '<span class="badge rounded-pill bg-secondary">Pendiente</span>';
+                        }
+                    }
+                },
+                { "data": "registro" },
+                //columna de botones para editar y eliminar
+                {
+                    "defaultContent": '<button type="button" class="btn btn-sm btn-editar" style="color: rgb(0, 79, 255); border-color: rgb(0, 79, 255); background-color: rgb(206, 238, 255);" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                                      '<button type="button" class="btn btn-sm ms-2 btn-eliminar" style="background-color: rgb(0, 79, 255); color: white;" title="Eliminar"><i class="fa-solid fa-trash"></i></i></button>',
+                    "orderable": false, //para que no ordene esa columna
+                    "searchable": false, //para que no busque por esa columna
+                    "width": "90px"
+                }
+            ],
+            //para cambiar el lenguaje de la tabla a español
+            "language": {
+                url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+            }
+        });
+
+        //**************************************** Función para deshabilitar el txtRegistro ****************************************
+        function desactivarRegistroSiTerminada() {
+            var estadoSeleccionado = $("#slEstado").val();
+
+            if (estadoSeleccionado == 1) {
+                $("#txtRegistro").prop("disabled", true);
+            }
+            else {
+                $("#txtRegistro").prop("disabled", false);
+            }
+        }
+
+        //********************************************** Abrir modal **********************************************
+        function abrirModal(json) {
+            $("#txtRegistro").prop("disabled", true);
+
+            $("#txtIDAnime").val(0);
+            $("#txtNombre").val("");
+            $("#slEstado").val(2);
+            $("#txtRegistro").val("");
+
+            $("#mensajeError").hide();
+
+
+            if (json != null) //aquí es donde se llenan los campos en caso de que el json sea vacío, los datos que viene de la BD
+            {
+                $("#txtIDAnime").val(json.IDAnime);
+                $("#txtNombre").val(json.nombre);
+                $("#slEstado").val(json.estado == true ? 1 : 0);
+                $("#txtRegistro").val(json.registro);
+
+                // Si el estado es 0, habilitar el campo txtRegistro; de lo contrario, dejarlo deshabilitado
+                if (json.estado == 0) {
+                    $("#txtRegistro").prop("disabled", false);
+                }
+            }
+
+            $("#mdAnimes").modal("show");
+        }
+
+        //**************************************** Llenar campos al editar ****************************************
+        $("#tbAnimes tbody").on("click", '.btn-editar', function () {
+            filaSeleccionada = $(this).closest("tr");
+
+            var data = tableData.row(filaSeleccionada).data();
+
+            abrirModal(data);
+        })
+
+        //**************************************** Agregar y editar series ****************************************
+        function guardarDatos() {
+            var anime = {
+                IDAnime: $("#txtIDAnime").val(),
+                nombre: $("#txtNombre").val(),
+                estado: $("#slEstado").val() == 1 ? true : false,
+                registro: $("#txtRegistro").val(),
+                cliente: $("#txtIDCliente").val(),
+            }
+
+            var estadoSeleccionado = $("#slEstado").val();
+            if (estadoSeleccionado == null) {
+                Swal.fire({
+                    icon: "warning",
+                    text: "Verificar que haya seleccionado un estado",
+                    confirmButtonColor: "#004fff",
+                });
+            }
+            else
+            {
+                jQuery.ajax({
+                    url: '@Url.Action("insertarAnime", "Home")',
+                    type: "POST",
+                    data: JSON.stringify({ obj: anime }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $(".modal-body").LoadingOverlay("hide");
+
+                        //serie nuevo
+                        if (anime.IDAnime == 0) {
+                            if (data.resultado != 0) {
+                                anime.IDAnime = data.resultado;
+                                tableData.row.add(anime).draw(false);
+                                $("#mdAnimes").modal("hide");
+                            }
+                            else {
+                                $("#mensajeError").text(data.mensaje);
+                                $("#mensajeError").show();
+                            }
+                        }
+                        //editar serie
+                        else {
+                            if (data.resultado) {
+
+                                if ($("#slEstado").val() == 0) { // Si el estado es Pendiente (valor 0)
+                                    // Agregar el valor del campo de registro si el estado es Pendiente
+                                    anime.registro = $("#txtRegistro").val();
+                                }
+                                else { // Si el estado es Terminada (valor 1)
+                                    // No agregar el valor del campo de registro si el estado es Terminada
+                                    anime.registro = "";
+                                }
+
+                                tableData.row(filaSeleccionada).data(anime).draw(false);
+                                filaSeleccionada = null
+                                $("#mdAnimes").modal("hide");
+                            }
+                            else {
+                                $("#mensajeError").text(data.mensaje);
+                                $("#mensajeError").show();
+                            }
+                        }
+
+                    },
+                    error: function (error) {
+                        $(".modal-body").LoadingOverlay("hide");
+                        $("#mensajeError").text("Error AJAX");
+                        $("#mensajeError").show();
+                    },
+                    beforeSend: function () {
+                        $(".modal-body").LoadingOverlay("show", {
+                            imageResizeFactor: 2,
+                            text: "Cargando...",
+                            size: 14
+                        })
+                    },
+                });
+            }
+        }
+
+        //********************************************* Eliminar series *********************************************
+        $("#tbAnimes tbody").on("click", '.btn-eliminar', function () {
+            var animeSeleccionado = $(this).closest("tr");
+            var data = tableData.row(animeSeleccionado).data();
+
+            //sweetalert2
+            Swal.fire({
+                title: "¿Desea eliminar este anime?",
+                text: "",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#004fff",
+                cancelButtonColor: "#6dd6ff",
+                confirmButtonText: "Sí",
+                cancelButtonText: "No"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    jQuery.ajax({
+                        url: '@Url.Action("eliminarAnime", "Home")',
+                        type: "POST",
+                        data: JSON.stringify({ id: data.IDAnime }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            if (data.resultado) {
+                                tableData.row(animeSeleccionado).remove().draw();
+                                /*Swal.fire("¡Eliminado!", "El usuario ha sido eliminado.", "success");*/
+                                Swal.fire({
+                                    title: "Eliminado",
+                                    text: "El anime ha sido eliminado",
+                                    icon: "success",
+                                    confirmButtonColor: "#004fff", // Cambia el color del botón de confirmación
+                                    confirmButtonTextColor: "#fff"
+                                });
+                            } else {
+                                Swal.fire("No se pudo eliminar el anime", data.mensaje, "error");
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        },
+                    });
+                }
+            });
+
+            console.log(data);
+        });
+    </script>
+
+    <!-- referencia al sweetalert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+}
+

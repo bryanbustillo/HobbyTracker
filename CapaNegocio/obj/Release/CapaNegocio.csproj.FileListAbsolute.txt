@@ -1,0 +1,11 @@
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\bin\Release\CapaNegocio.dll
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\bin\Release\CapaNegocio.pdb
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\bin\Release\CapaDatos.dll
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\bin\Release\CapaEntidades.dll
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\bin\Release\CapaDatos.pdb
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\bin\Release\CapaEntidades.pdb
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\obj\Release\CapaNegocio.csproj.AssemblyReference.cache
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\obj\Release\CapaNegocio.csproj.CoreCompileInputs.cache
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\obj\Release\CapaNegocio.csproj.CopyComplete
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\obj\Release\CapaNegocio.dll
+C:\Users\bryan\source\repos\HobbyTracker\CapaNegocio\obj\Release\CapaNegocio.pdb
